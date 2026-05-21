@@ -1844,13 +1844,12 @@ materials:
       siz: G_IM_SIZ_4b
       fmt: G_IM_FMT_I
 
-    gDPSetCombineMode: G_CC_MODULATERGB
+    gDPSetCombineMode: G_CC_DECALRGB
     gDPSetCycleType: G_CYC_1CYCLE
     gDPSetRenderMode: G_RM_RA_ZB_OPA_DECAL
 
     gSPGeometryMode:
-      set: [G_SHADE]
-      clear: [G_LIGHTING]
+      clear: [G_LIGHTING, G_SHADE]
 
   signage_overlay_aperture_logo_worn:
     gDPSetTile:
@@ -1938,13 +1937,12 @@ materials:
       siz: G_IM_SIZ_4b
       fmt: G_IM_FMT_I
 
-    gDPSetCombineMode: G_CC_MODULATERGB
+    gDPSetCombineMode: G_CC_DECALRGBA
     gDPSetCycleType: G_CYC_1CYCLE
     gDPSetRenderMode: G_RM_RA_ZB_OPA_DECAL
 
     gSPGeometryMode:
-      set: [G_SHADE]
-      clear: [G_LIGHTING]
+      clear: [G_LIGHTING, G_SHADE]
 
   signage_overlay_midair1:
     gDPSetTile:
@@ -1952,13 +1950,12 @@ materials:
       siz: G_IM_SIZ_4b
       fmt: G_IM_FMT_I
 
-    gDPSetCombineMode: G_CC_MODULATERGB
+    gDPSetCombineMode: G_CC_DECALRGB
     gDPSetCycleType: G_CYC_1CYCLE
     gDPSetRenderMode: G_RM_RA_ZB_OPA_DECAL
 
     gSPGeometryMode:
-      set: [G_SHADE]
-      clear: [G_LIGHTING]
+      clear: [G_LIGHTING, G_SHADE]
 
   signage_doorstate:
     gDPSetTile:
