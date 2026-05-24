@@ -10,6 +10,7 @@ cutscenes:
     - q_sound 13_PART1_ENTRY_1 CH_GLADOS PORTAL_13_PART1_ENTRY_1
     - wait_for_channel CH_GLADOS
     - set_signal cube_dropper
+    - start_cutscene CHECK_LOST_CUBE
     - start_cutscene CHECK_END_BUTTON
     - save_checkpoint
 
@@ -19,8 +20,21 @@ cutscenes:
     - q_sound 13_PART1_EUTHANIZED_1 CH_GLADOS PORTAL_13_PART1_EUTHANIZED_1 1.0 clear_existing
     - set_signal exit_door
   HOVER_CUBE_PICKUP:
+    - wait_for_signal picked_up_cube
     - q_sound 13_PART1_PICKUP_1 CH_GLADOS PORTAL_13_PART1_PICKUP_1
-  BALL_HALLWAY_ENTRANCE:
+  CHECK_LOST_CUBE:
+    - label lost_cube_loop
+    - wait_for_signal lost_cube
+    - clear_signal cube_dropper
+    - delay 0.5
+    - set_signal cube_dropper
+    - delay 0.5
+
+    - stop_cutscene HOVER_CUBE_PICKUP
+    - start_cutscene HOVER_CUBE_PICKUP
+
+    - goto lost_cube_loop
+  HOVER_BALL_HALLWAY_ENTRANCE:
     - save_checkpoint
   BALL_HALLWAY:
     - q_sound 13_PART1_MIDDLE_1 CH_GLADOS PORTAL_13_PART1_MIDDLE_1
@@ -37,8 +51,12 @@ cutscenes:
     - q_sound 13_PART1_MIDDLE_2B_2 CH_GLADOS PORTAL_13_PART1_MIDDLE_2B_2
 
     - wait_for_signal piston_3
+    - disable_collision ANTI_SOFTLOCK_WALL
     - save_checkpoint
     - play_animation piston_3 piston_3_up
+  CUBE_THROUGH_BALL_HALLWAY:
+    - play_animation anti_softlock_steps steps_out
+    - stop_cutscene CHECK_LOST_CUBE
   BALL_HALLWAY_LAUNCHER_ROOM:
     - save_checkpoint
   MAIN_ROOM:
@@ -46,6 +64,9 @@ cutscenes:
     - wait_for_signal cube_on_ball_door_button
     - save_checkpoint
   CHECK_END_BUTTON:
+    - wait_for_signal switch_door
+    - start_cutscene CHECK_TRAPPED
+
     - wait_for_signal cube_on_end_button
     - q_sound 13_PART1_END_1 CH_GLADOS PORTAL_13_PART1_END_1
     - q_sound 13_PART1_END_2 CH_GLADOS PORTAL_13_PART1_END_2
@@ -75,6 +96,12 @@ cutscenes:
     - wait_for_channel CH_GLADOS
     - delay 15
     - q_sound 13_PART1_ENDNAG_8 CH_GLADOS PORTAL_13_PART1_ENDNAG_8
+  CHECK_TRAPPED:
+    - wait_for_signal trapped 30
+    - q_sound 08_PART1_TRAPPED_1 CH_GLADOS PORTAL_08_PART1_TRAPPED_1
+    - q_sound 08_PART1_TRAPPED_2 CH_GLADOS PORTAL_08_PART1_TRAPPED_2
+    - wait_for_channel CH_GLADOS
+    - set_signal escape_hatch
   INCINERATE_PLAYER:
     - label incinerate_loop
     - wait_for_signal player_in_incinerator
@@ -83,6 +110,9 @@ cutscenes:
     - goto incinerate_loop
 
 operators:
+  - cube_away_from_start = cube_on_stairs or cube_in_ball_hallway
+  - lost_cube = cube_away_from_start and player_at_dropper
+
   - ball_catchers_1_2 = ball_catcher_1 and ball_catcher_2
   - ball_catchers_1_3 = ball_catcher_1 and ball_catcher_3
   - ball_catchers_2_3 = ball_catcher_2 and ball_catcher_3
@@ -94,3 +124,8 @@ operators:
   - piston_2 = piston_2 or ball_catchers_2_3
 
   - piston_3 = ball_catchers_1_2 and ball_catcher_3
+
+  - switch_door_closed = not switch_door
+  - in_switch_room = player_in_switch_room or cube_in_switch_room
+  - trapped = switch_door_closed and in_switch_room
+  - switch_door = switch_door or escape_hatch

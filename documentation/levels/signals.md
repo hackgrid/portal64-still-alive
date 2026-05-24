@@ -106,4 +106,5 @@ operators:
 ```
 
 Operators are evaluated from top to bottom to update their corresponding
-signals. Signals from any source can be used.
+signals. They can only cause signals to be emitted, and will not stop ones
+already being emitted for other reasons. Signals from any source can be used.
