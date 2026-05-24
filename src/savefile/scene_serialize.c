@@ -339,6 +339,8 @@ void boxDropperDeserialize(struct Serializer* serializer, struct Scene* scene) {
         decorObjectInit(&dropper->activeCube, dropper->cubeDef, &dummyOriginalCubePosition, dummyOriginalCubeRoom);
 
         rigidBodyDeserialize(serializer, &dropper->activeCube.rigidBody);
+        collisionObjectUpdateBB(&dropper->activeCube.collisionObject);
+
         if (dropper->activeCube.rigidBody.flags & RigidBodyFizzled) {
             serializeRead(serializer, &dropper->activeCube.fizzleTime, sizeof(float));
         } else {
