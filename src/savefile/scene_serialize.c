@@ -681,6 +681,15 @@ void turretDeserialize(struct Serializer* serializer, struct Scene* scene) {
     scene->turretCount = count;
 }
 
+void namedCollisionSerialize(struct Serializer* serializer, SerializeAction action, struct LevelDefinition* level) {
+    for (int i = 0; i < level->namedColliderCount; ++i) {
+        short quadIndex = level->namedColliderIndices[i];
+        struct CollisionObject* quad = &level->collisionQuads[quadIndex];
+
+        action(serializer, &quad->collisionLayers, sizeof(u16));
+    }
+}
+
 #define INCLUDE_SAVEFILE_ALIGN_CHECKS   0
 
 #if INCLUDE_SAVEFILE_ALIGN_CHECKS
@@ -723,6 +732,8 @@ void sceneSerialize(struct Serializer* serializer, SerializeAction action, struc
     WRITE_ALIGN_CHECK;
     turretSerialize(serializer, action, scene);
     WRITE_ALIGN_CHECK;
+    namedCollisionSerialize(serializer, action, gCurrentLevel);
+    WRITE_ALIGN_CHECK;
 }
 
 void sceneDeserialize(struct Serializer* serializer, struct Scene* scene) {
@@ -757,6 +768,8 @@ void sceneDeserialize(struct Serializer* serializer, struct Scene* scene) {
     securityCameraDeserialize(serializer, scene);
     READ_ALIGN_CHECK;
     turretDeserialize(serializer, scene);
+    READ_ALIGN_CHECK;
+    namedCollisionSerialize(serializer, serializeRead, gCurrentLevel);
     READ_ALIGN_CHECK;
 
     for (int i = 0; i < scene->doorCount; ++i) {

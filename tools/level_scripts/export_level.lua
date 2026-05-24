@@ -14,6 +14,8 @@ local dynamic_collision = require('tools.level_scripts.dynamic_collision_export'
 sk_definition_writer.add_definition("level", "struct LevelDefinition", "_geo", {
     collisionQuads = sk_definition_writer.reference_to(collision_export.collision_objects, 1),
     collisionQuadCount = #collision_export.collision_objects,
+    namedColliderIndices = sk_definition_writer.reference_to(collision_export.named_collider_indices, 1),
+    namedColliderCount = #collision_export.named_collider_indices,
     staticContent = sk_definition_writer.reference_to(static_export.static_content_elements, 1),
     staticContentCount = #static_export.static_content_elements,
     staticBoundingBoxes = sk_definition_writer.reference_to(static_export.static_bounding_boxes, 1),

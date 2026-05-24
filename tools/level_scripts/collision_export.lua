@@ -1,4 +1,3 @@
-
 local sk_definition_writer = require('sk_definition_writer')
 local sk_scene = require('sk_scene')
 local sk_mesh = require('sk_mesh')
@@ -303,6 +302,8 @@ local function is_coplanar(collision_quad, mesh)
 end 
 
 local colliders = {}
+local named_collider_indices = {}
+local collider_name_to_index = {}
 local collider_types = {}
 local collision_objects = {}
 local quad_rooms = {}
@@ -317,6 +318,16 @@ local default_collision_layers = {
     'COLLISION_LAYERS_TANGIBLE',
     'COLLISION_LAYERS_BLOCK_TURRET_SIGHT',
 }
+
+local function named_collider_index(name)
+    local result = collider_name_to_index[name]
+
+    if not result then
+        error('Could not find collision with the name ' .. name)
+    end
+
+    return result
+end
 
 local function add_collider(collider, collision_layers, room_index)
     local bb = collision_quad_bb(collider)
@@ -376,7 +387,11 @@ for index, node in pairs(collider_nodes) do
         local named_entry = sk_scene.find_named_argument(node.arguments, "name")
 
         if (named_entry) then
-            sk_definition_writer.add_macro(named_entry .. "_COLLISION_INDEX", #colliders)
+            local macro_name = named_entry .. "_COLLISION_INDEX"
+            local macro = sk_definition_writer.raw(sk_definition_writer.add_macro(macro_name, #colliders))
+
+            table.insert(named_collider_indices, macro)
+            collider_name_to_index[named_entry] = macro
         end
 
         add_collider(collider, collision_layers, node.room_index)
@@ -410,10 +425,13 @@ end
 sk_definition_writer.add_definition("quad_colliders", "struct CollisionQuad[]", "_geo", colliders)
 sk_definition_writer.add_definition("collider_types", "struct ColliderTypeData[]", "_geo", collider_types)
 sk_definition_writer.add_definition("collision_objects", "struct CollisionObject[]", "_geo", collision_objects)
+sk_definition_writer.add_definition("named_collider_indices", "u16[]", "_geo", named_collider_indices)
 
 return {
     is_coplanar = is_coplanar,
     colliders = colliders,
+    named_collider_indices = named_collider_indices,
+    named_collider_index = named_collider_index,
     collision_quad_bb = collision_quad_bb,
     collision_objects = collision_objects,
     collision_quad_from_mesh = collision_quad_from_mesh,

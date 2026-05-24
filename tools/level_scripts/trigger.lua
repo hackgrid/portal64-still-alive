@@ -1,6 +1,7 @@
 local sk_definition_writer = require('sk_definition_writer')
 local sk_scene = require('sk_scene')
 local sk_math = require('sk_math')
+local collision_export = require('tools.level_scripts.collision_export')
 local room_export = require('tools.level_scripts.room_export')
 local signals = require('tools.level_scripts.signals')
 local animation = require('tools.level_scripts.animation')
@@ -272,6 +273,20 @@ local function generate_cutscene_step(cutscene_name, step, step_index, label_loc
         result.playEffect = {
             sk_definition_writer.raw('ScriptableEffectType' .. step.args[1]),
             find_location_index(step.args[2]),
+        }
+    elseif step.command == "enable_collision" or step.command == "disable_collision" then
+        result.type = step.command == "enable_collision" and
+            sk_definition_writer.raw("CutsceneStepEnableCollision") or
+            sk_definition_writer.raw("CutsceneStepDisableCollision")
+
+        local layers = {};
+        for i = 2, #step.args do
+            table.insert(layers, "COLLISION_LAYERS_" .. step.args[i])
+        end
+
+        result.updateCollision = {
+            collision_export.named_collider_index(step.args[1]),
+            (#layers > 0) and sk_definition_writer.raw(table.concat(layers, " | ")) or 0xFFFF
         }
     else
         error("Unrecognized cutscene step " .. step.command)

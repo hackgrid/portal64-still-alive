@@ -1,9 +1,7 @@
-
 local sk_definition_writer = require('sk_definition_writer')
 local sk_scene = require('sk_scene')
 local sk_math = require('sk_math')
 local room_export = require('tools.level_scripts.room_export')
-local trigger = require('tools.level_scripts.trigger')
 local signals = require('tools.level_scripts.signals')
 
 local box_droppers = {}

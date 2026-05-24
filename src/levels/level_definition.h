@@ -72,6 +72,8 @@ enum CutsceneStepType {
     CutsceneStepRumble,
     CutsceneStepActivateSignage,
     CutsceneStepPlayEffect,
+    CutsceneStepEnableCollision,
+    CutsceneStepDisableCollision,
 };
 
 enum CutscenePromptType {
@@ -185,6 +187,10 @@ struct CutsceneStep {
             u8 effectIndex;
             u16 locationIndex;
         } playEffect;
+        struct {
+            u16 colliderIndex;
+            u16 layers;
+        } updateCollision;
         int noop;
     };
 };
@@ -375,6 +381,7 @@ struct TurretDefinition {
 
 struct LevelDefinition {
     struct CollisionObject* collisionQuads;
+    u16* namedColliderIndices;
     struct StaticContentElement* staticContent;
     // For precise culling (second pass after BVH)
     struct RotatedBox* staticBoundingBoxes;
@@ -410,6 +417,7 @@ struct LevelDefinition {
     struct SecurityCameraDefinition* securityCameras;
     struct TurretDefinition* turrets;
     short collisionQuadCount;
+    short namedColliderCount;
     short staticContentCount;
     short signalToStaticCount;
     short portalSurfaceCount;

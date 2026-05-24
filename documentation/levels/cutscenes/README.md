@@ -77,3 +77,5 @@ See the pages below for details on specific cutscene steps.
 | [rumble](./rumble.md)                         | Activates the rumble pak                    |
 | [activate_signage](./activate_signage.md)     | Turns on test chamber signs                 |
 | [play_effect](./play_effect.md)               | Plays a particle effect at a location       |
+| [enable_collision](./enable_collision.md)     | Adds layers to static collision             |
+| [disable_collision](./disable_collision.md)   | Removes layers from static collision        |

@@ -5,7 +5,7 @@ Static level collision geometry. Must be a quad.
 ## Name Structure
 
 ```
-@collision [transparent] [thickness DEPTH] [CL_X]...
+@collision [transparent] [thickness DEPTH] [name NAME] [CL_X]...
 ```
 
 ## Arguments
@@ -14,6 +14,7 @@ Static level collision geometry. Must be a quad.
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `transparent` (optional)     | If specified, the `TRANSPARENT` collision layer will be added                                                                                     |
 | `thickness DEPTH` (optional) | If specified, the quad's thickness will be set to `DEPTH` (in opposite direction to normal). Defaults to 0, which results in one-sided collision. |
+| `name NAME` (optional)       | If specified, associates the name `NAME` with the collision so it can be referenced by game code and [cutscenes](../cutscenes/README.md).         |
 | `CL_X` (optional)            | Space-separated list of collision layer names. Only those prefixed with `CL_` are used.                                                           |
 
 ## Notes

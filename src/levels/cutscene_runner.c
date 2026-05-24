@@ -378,7 +378,20 @@ void cutsceneRunnerStartStep(struct CutsceneRunner* runner) {
 
             break;
         }
+        case CutsceneStepEnableCollision:
+        {
+            struct CollisionObject* quad = &gCurrentLevel->collisionQuads[step->updateCollision.colliderIndex];
+            quad->collisionLayers |= step->updateCollision.layers;
+            break;
+        }
+        case CutsceneStepDisableCollision:
+        {
+            struct CollisionObject* quad = &gCurrentLevel->collisionQuads[step->updateCollision.colliderIndex];
+            quad->collisionLayers &= ~step->updateCollision.layers;
+            break;
+        }
         default:
+            break;
     }
 }
 

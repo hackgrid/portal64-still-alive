@@ -35,6 +35,8 @@ static struct LevelDefinition* levelFixPointers(struct LevelDefinition* from, in
         result->collisionQuads[i].data = ADJUST_POINTER_POS(result->collisionQuads[i].data, pointerOffset);
     }
 
+    result->namedColliderIndices = ADJUST_POINTER_POS(result->namedColliderIndices, pointerOffset);
+
     result->staticContent = ADJUST_POINTER_POS(result->staticContent, pointerOffset);
     result->staticBoundingBoxes = ADJUST_POINTER_POS(result->staticBoundingBoxes, pointerOffset);
     result->roomStaticMapping = ADJUST_POINTER_POS(result->roomStaticMapping, pointerOffset);

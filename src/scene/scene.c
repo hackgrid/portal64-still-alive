@@ -841,9 +841,9 @@ void sceneUpdate(struct Scene* scene) {
 
     staticRenderCheckSignalMaterials();
 
-    collisionSceneUpdateDynamics();
-
     cutscenesUpdate();
+
+    collisionSceneUpdateDynamics();
 
     debugSceneUpdate(scene);
 
