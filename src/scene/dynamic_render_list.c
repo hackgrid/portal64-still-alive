@@ -80,91 +80,52 @@ void dynamicRenderListAddDataTouchingPortal(
 ) {
     dynamicRenderListAddData(list, model, transform, materialIndex, position, armature);
 
-    rigidBodyFlags &= RigidBodyIsTouchingPortalA | RigidBodyWasTouchingPortalA | RigidBodyIsTouchingPortalB | RigidBodyWasTouchingPortalB;
-
-    if (!rigidBodyFlags) {
+    int portalFlags = rigidBodyFlags & (RigidBodyIsTouchingPortalA | RigidBodyWasTouchingPortalA | RigidBodyIsTouchingPortalB | RigidBodyWasTouchingPortalB);
+    if (!portalFlags) {
         return;
     }
 
-    int touchingPortalIndex = (rigidBodyFlags & (RigidBodyIsTouchingPortalA | RigidBodyWasTouchingPortalA)) ? 0 : 1;
+    // Find render stages where clone should be shown
+    short cullingMask = 0;
+    int touchingPortalIndex = (portalFlags & (RigidBodyIsTouchingPortalA | RigidBodyWasTouchingPortalA)) ? 0 : 1;
 
-    short parentCullingMask = 0;
-    short childCullingMask = 0;
-
-    // start at 1 because stage at index 0 cant
-    // possibly have a parent
+    // Start at 1 because stage 0 has no parents
     for (int i = 1; i < list->stageCount; ++i) {
-        // if cube is touching an exit portal
-        // draw the cube from parent view
         if (list->stages[i].exitPortalView == touchingPortalIndex) {
-            parentCullingMask |= (1 << list->stages[i].parentStageIndex);
+            // If object is touching an exit portal, draw from parent view
+            // (makes it not disappear moving out of portal before crossing)
+            cullingMask |= (1 << list->stages[i].parentStageIndex);
+        } else if (!(rigidBodyFlags & RigidBodyIsPlayer) || list->stages[i].parentStageIndex != 0) {
+            // If object is touching an entrance portal, draw from child view
+            // (makes it not disappear moving into portal before crossing)
+            cullingMask |= 1 << i;
         }
+    }
 
-        // if cube is touching an entrance portal
-        // draw the cube from exit view
-        if (list->stages[list->stages[i].parentStageIndex].exitPortalView == 1 - touchingPortalIndex) {
-            childCullingMask |= 1 << i;
-        }
+    if (!cullingMask || list->currentLength >= list->maxLength) {
+        return;
+    }
+
+    // Render clones
+    Mtx* mtx = renderStateRequestMatrices(list->renderState, 1);
+    if (!mtx) {
+        return;
     }
 
     float transformAsFloat[4][4];
+    float finalTransform[4][4];
     guMtxL2F(transformAsFloat, transform);
+    guMtxCatF(transformAsFloat, list->portalTransforms[touchingPortalIndex], finalTransform);
+    guMtxF2L(finalTransform, mtx);
 
-    if (parentCullingMask) {
-        if (list->currentLength >= list->maxLength) {
-            return;
-        }
-
-        Mtx* mtx = renderStateRequestMatrices(list->renderState, 1);
-
-        if (!mtx) {
-            return;
-        }
-
-        float finalTransform[4][4];
-        guMtxCatF(transformAsFloat, list->portalTransforms[touchingPortalIndex], finalTransform);
-
-        guMtxF2L(finalTransform, mtx);
-
-        struct DynamicRenderData* next = &list->renderData[list->currentLength];
-        ++list->currentLength;
-
-        next->model = model;
-        next->transform = mtx;
-        transformPoint(collisionSceneTransformToPortal(touchingPortalIndex), position, &next->position);
-        next->armature = armature;
-        next->materialIndex = materialIndex;
-        next->renderStageCullingMask = parentCullingMask;
-    }
-
-    if (childCullingMask) {
-        if (list->currentLength >= list->maxLength) {
-            return;
-        }
-
-        Mtx* mtx = renderStateRequestMatrices(list->renderState, 1);
-
-        if (!mtx) {
-            return;
-        }
-
-        float finalTransform[4][4];
-        guMtxCatF(transformAsFloat, list->portalTransforms[touchingPortalIndex], finalTransform);
-
-        guMtxF2L(finalTransform, mtx);
-
-        struct DynamicRenderData* next = &list->renderData[list->currentLength];
-        ++list->currentLength;
-
-        next->model = model;
-        next->transform = mtx;
-        transformPoint(collisionSceneTransformToPortal(touchingPortalIndex), position, &next->position);
-        next->armature = armature;
-        next->materialIndex = materialIndex;
-        next->renderStageCullingMask = childCullingMask;
-    }
+    struct DynamicRenderData* next = &list->renderData[list->currentLength++];
+    next->model = model;
+    next->transform = mtx;
+    transformPoint(collisionSceneTransformToPortal(touchingPortalIndex), position, &next->position);
+    next->armature = armature;
+    next->materialIndex = materialIndex;
+    next->renderStageCullingMask = cullingMask;
 }
-
 
 void dynamicRenderListPopulate(struct DynamicRenderDataList* list, struct RenderProps* stages, int stageCount, struct RenderState* renderState) {
     for (int i = 0; i < MAX_DYNAMIC_SCENE_OBJECTS; ++i) {
